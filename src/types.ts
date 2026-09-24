@@ -85,6 +85,8 @@ export interface City {
   lat: number
   lon: number
   pop: number
+  /** GeoNames admin1 code (state / region); name via admin1.json as "CC.code". Missing on data imported before states existed, until it's backfilled. */
+  admin?: string
 }
 
 export interface Place {

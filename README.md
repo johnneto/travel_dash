@@ -9,7 +9,7 @@ Everything runs in the browser. Imported files are parsed locally (in a Web Work
 - **3D interactive globe** ([globe.gl](https://github.com/vasturiano/react-globe.gl)): visited countries shaded by days spent, flight arcs, city markers. The camera flies to whatever you select: a country, city, airport, route, flight or trip. Selecting a trip traces your path.
 - **Global filters**: a time period (all time, last 12 months, any year, custom range) and a country. A year bar above every section switches between _All time_ and each year with one click. Every section, fact and globe layer updates to match.
 - **Overview**: headline KPIs, a _Did you know?_ list of facts that changes with the filters, travel per year, countries discovered over time, and continent coverage.
-- **Places**: a search across every city and place in your Timeline (by city, country, continent or place type such as Home or Work, accent-insensitive), a sortable country table (days, trips, cities, first and last visit), top cities, most visited places (with Google Maps links), the geographic extremes, and a history of where you lived.
+- **Places**: a search across every city and place in your Timeline (by city, country, continent or place type such as Home or Work, accent-insensitive), a sortable country table (clicking a country focuses the dashboard on it without narrowing the table), a full list of every city in the filtered country with its state or region (days, trips, cities, first and last visit), top cities, most visited places (with Google Maps links), the geographic extremes, and a history of where you lived.
 - **Flights**: a livery-free side profile of every aircraft type, drawn from its real proportions, and airline logos; records (longest and shortest by distance and by time, fastest, most delayed, longest taxi, biggest time-zone jump), aircraft, airlines, manufacturers, airports, routes, repeat tail numbers, punctuality, departure hour and weekday, seat and cabin, upcoming flights, and a searchable flight log.
 - **Trips**: trips detected automatically, a month × year heatmap of days away, trip-length and start-day distributions, and a trip list.
 - **Movement**: distance and time by transport mode, longest single journeys, km per year by mode, weekday patterns, and a CO₂e estimate.
@@ -36,7 +36,7 @@ Use the profile menu in the header to keep separate datasets, for example one pe
 
 ### How the Timeline is interpreted
 
-- **Reverse geocoding** runs offline. Each location maps to the most representative nearby GeoNames city (a population-weighted nearest-neighbour search) and to a country via Natural Earth polygons.
+- **Reverse geocoding** runs offline. Each location maps to the most representative nearby GeoNames city (a population-weighted nearest-neighbour search) and to a country via Natural Earth polygons. Each city also carries its state or region (GeoNames admin1). Timelines imported before that existed get it filled in automatically the first time the profile loads.
 - **Home** is detected month by month from `Home` / `Inferred Home` visits. If there are no such labels, the fallback is where you spend your nights.
 - A **trip** is a run of days on which you were more than 100 km from home (gaps of up to 2 days without data are bridged).
 - **Days per country** are calendar days with any presence in that country. Path points recorded mid-flight, or moving at airliner speed, are ignored so overflown countries don't count.

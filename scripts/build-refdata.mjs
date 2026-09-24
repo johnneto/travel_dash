@@ -5,6 +5,7 @@
  *
  * Sources (all openly licensed):
  *  - Cities: GeoNames via the `all-the-cities` npm package (CC BY 4.0)
+ *  - States / regions: GeoNames admin1CodesASCII.txt (CC BY 4.0)
  *  - Countries: `world-countries` (ODbL) + `world-atlas` Natural Earth TopoJSON (public domain)
  *  - Airports: github.com/mwgg/Airports (MIT)
  *  - Airlines: OpenFlights airlines.dat (ODbL)
@@ -67,9 +68,24 @@ const cityOut = cities
     round(c.loc.coordinates[1], 3),
     round(c.loc.coordinates[0], 3),
     c.population,
+    c.adminCode ?? '',
   ])
 writeFileSync(join(out, 'cities.json'), JSON.stringify(cityOut))
 console.log(`cities: ${cityOut.length}`)
+
+// ---------- States / regions (GeoNames admin1), keyed "CC.code" ----------
+const admin1Txt = await cached(
+  'admin1CodesASCII.txt',
+  'https://download.geonames.org/export/dump/admin1CodesASCII.txt',
+)
+const usedAdmin = new Set(cityOut.map((c) => `${c[1]}.${c[5]}`))
+const admin1Out = {}
+for (const line of admin1Txt.split('\n')) {
+  const [key, name] = line.split('\t')
+  if (key && name && usedAdmin.has(key)) admin1Out[key] = name
+}
+writeFileSync(join(out, 'admin1.json'), JSON.stringify(admin1Out))
+console.log(`admin1: ${Object.keys(admin1Out).length}`)
 
 // ---------- Airports ----------
 const airports = JSON.parse(
