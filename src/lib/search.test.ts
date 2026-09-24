@@ -46,13 +46,10 @@ const cityStat = (idx: number, days: number): CityStat => ({
   last: '2024-02-01',
 })
 const cities = [cityStat(0, 100), cityStat(2, 10), cityStat(1, 5), cityStat(3, 2)]
-const placeStat = (p: number, hours: number): PlaceStat => ({
-  p,
-  hours,
-  visits: 1,
-  first: 0,
-  last: 0,
-})
+const placeStat = (p: number, hours: number): PlaceStat => {
+  const sem = tl.places[p].sem
+  return { p, hours, visits: 1, first: 0, last: 0, sem, sems: sem === 'Unknown' ? [] : [sem] }
+}
 const places = [
   placeStat(0, 900),
   placeStat(1, 300),

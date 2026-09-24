@@ -50,7 +50,7 @@ export function searchPlaces(
     const rest = words.filter((w) => !cityFields.includes(w))
     const typed = rest.length
       ? inCity.filter((s) => {
-          const sem = normalize(tl.places[s.p].sem)
+          const sem = normalize(s.sems.join(' '))
           return rest.every((w) => sem.includes(w))
         })
       : inCity

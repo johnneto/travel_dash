@@ -177,6 +177,9 @@ export function cityStats(fd: Filtered, tl: TimelineData | null): CityStat[] {
   return [...m.values()].sort((a, b) => b.days - a.days || b.hours - a.hours)
 }
 
+/** Place labels Google gives the user's own Home / Work (and its guesses at them). */
+export const HOME_WORK_SEMANTICS = new Set(['Home', 'Inferred Home', 'Work', 'Inferred Work'])
+
 export interface PlaceStat {
   p: number
   hours: number
@@ -184,16 +187,35 @@ export interface PlaceStat {
   /** Start of the first and last visit (UTC epoch ms). */
   first: number
   last: number
+  /** Label of the latest labelled visit ('Unknown' if none). Labels are per visit, so a place
+   * that was Home back then and isn't any more reads as what it is now. */
+  sem: string
+  /** Every label the place had across the counted visits. */
+  sems: string[]
 }
-export function placeStats(fd: Filtered): PlaceStat[] {
+/** Per-place totals over the given visits, optionally only those matching `keep`. */
+export function placeStats(visits: Visit[], keep?: (v: Visit) => boolean): PlaceStat[] {
   const m = new Map<number, PlaceStat>()
-  for (const v of fd.visits) {
+  const semAt = new Map<number, number>() // start of the visit `sem` was taken from
+  for (const v of visits) {
+    if (keep && !keep(v)) continue
     let s = m.get(v.p)
-    if (!s) m.set(v.p, (s = { p: v.p, hours: 0, visits: 0, first: v.s, last: v.s }))
+    if (!s)
+      m.set(
+        v.p,
+        (s = { p: v.p, hours: 0, visits: 0, first: v.s, last: v.s, sem: 'Unknown', sems: [] }),
+      )
     s.visits++
     s.hours += (v.e - v.s) / 3600000
     if (v.s < s.first) s.first = v.s
     if (v.s > s.last) s.last = v.s
+    if (v.sem !== 'Unknown') {
+      if (!s.sems.includes(v.sem)) s.sems.push(v.sem)
+      if (v.s > (semAt.get(v.p) ?? -Infinity)) {
+        s.sem = v.sem
+        semAt.set(v.p, v.s)
+      }
+    }
   }
   return [...m.values()].sort((a, b) => b.hours - a.hours)
 }
