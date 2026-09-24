@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useStore, type Theme } from '../store/useStore'
 import { discoveryCurve } from '../lib/stats'
 import { ProfileMenu } from './ProfileMenu'
+import { rangeYear, yearRange } from '../lib/range'
 
 const selectCls =
   'h-9 rounded-lg border border-line bg-surface px-2.5 text-sm text-ink focus:border-accent focus:outline-none'
@@ -55,15 +56,15 @@ function PeriodPicker() {
       ? 'all'
       : range.from === last12 && range.to === today
         ? 'last12'
-        : range.from?.endsWith('-01-01') && range.to === `${range.from.slice(0, 4)}-12-31`
-          ? `y${range.from.slice(0, 4)}`
+        : rangeYear(range)
+          ? `y${rangeYear(range)}`
           : 'custom'
 
   const onChange = (v: string) => {
     setCustom(v === 'custom')
     if (v === 'all') setRange({ from: null, to: null })
     else if (v === 'last12') setRange({ from: last12, to: today })
-    else if (v.startsWith('y')) setRange({ from: `${v.slice(1)}-01-01`, to: `${v.slice(1)}-12-31` })
+    else if (v.startsWith('y')) setRange(yearRange(v.slice(1)))
   }
 
   return (
