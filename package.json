@@ -1,0 +1,59 @@
+{
+  "name": "travel_dash",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "oxlint src",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "refdata": "node scripts/build-refdata.mjs"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "geokdbush": "^2.1.0",
+    "idb-keyval": "^6.3.0",
+    "kdbush": "^4.1.0",
+    "lucide-react": "^1.48.0",
+    "luxon": "^3.7.2",
+    "papaparse": "^5.7.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-globe.gl": "^2.38.0",
+    "recharts": "^3.10.1",
+    "three": "^0.186.0",
+    "topojson-client": "^3.1.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/geojson": "^7946.0.16",
+    "@types/luxon": "^3.7.5",
+    "@types/node": "^24.13.3",
+    "@types/papaparse": "^5.5.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@types/three": "^0.186.0",
+    "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "all-the-cities": "^3.1.0",
+    "oxlint": "^1.81.0",
+    "playwright": "^1.63.0",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1",
+    "world-atlas": "^2.0.2",
+    "world-countries": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
