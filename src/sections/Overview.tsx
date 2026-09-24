@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Derived } from '../hooks/useDerived'
-import { Card, Grid, Segmented, Stat, BarList } from '../components/ui'
+import { Card, Grid, Segmented, Stat, BarList, StatGrid } from '../components/ui'
 import { ColumnChart, StepArea } from '../components/charts'
 import { InsightCard } from '../components/InsightCard'
 import { CONTINENTS, continentOf } from '../lib/refdata'
@@ -92,7 +92,7 @@ export function Overview({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-6">
+      <StatGrid>
         <Stat
           label="Countries"
           icon={Globe2}
@@ -150,7 +150,7 @@ export function Overview({ d }: { d: Derived }) {
           hint={hasTimeline ? 'car, train, walking…' : needsTimeline}
           onClick={() => setTab('movement')}
         />
-      </div>
+      </StatGrid>
 
       {d.insights.length > 0 && (
         <div>

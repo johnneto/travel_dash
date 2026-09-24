@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { CalendarClock, Search } from 'lucide-react'
 import type { Derived } from '../hooks/useDerived'
 import type { Flight } from '../types'
-import { BarList, Card, Empty, Grid, Pill, Stat } from '../components/ui'
+import { BarList, Card, Empty, Grid, Pill, Stat, StatGrid } from '../components/ui'
 import { ColumnChart } from '../components/charts'
 import { useStore } from '../store/useStore'
 import {
@@ -146,7 +146,7 @@ export function Flights({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-6">
+      <StatGrid>
         <Stat
           label="Flights"
           value={s.count}
@@ -177,7 +177,7 @@ export function Flights({ d }: { d: Derived }) {
           value={pct(s.onTimePct)}
           hint={s.medianDepDelay != null ? `median dep. delay ${fmtDelay(s.medianDepDelay)}` : '—'}
         />
-      </div>
+      </StatGrid>
 
       <Card title="Records" subtitle="Click one to see it on the globe">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -211,14 +211,12 @@ export function Flights({ d }: { d: Derived }) {
       <Grid cols="sm:grid-cols-2 2xl:grid-cols-3">
         <Card title="Aircraft" subtitle={`${s.uniqueTails} individual planes recorded`}>
           <BarList
+            wrap
             items={s.aircraft.map(([k, v]) => ({
               key: k,
-              label: (
-                <>
-                  <AircraftProfile name={k} className="mr-2 inline-block h-5 w-14 align-middle" />
-                  {k}
-                </>
-              ),
+              label: k,
+              // Faded behind the text so the model name keeps the full width.
+              backdrop: <AircraftProfile name={k} className="h-7 w-24" />,
               value: v,
             }))}
           />
@@ -287,9 +285,19 @@ export function Flights({ d }: { d: Derived }) {
         <Card title="Same plane, again" subtitle="Tail numbers you've flown more than once">
           {s.tails.length ? (
             <BarList
+              wrap
               items={s.tails.map(([t, n]) => {
                 const f = fd.flights.find((x) => x.tail === t)!
-                return { key: t, label: `${t} · ${f.aircraft}`, value: n, display: `${n}×` }
+                return {
+                  key: t,
+                  label: `${t} · ${f.aircraft}`,
+                  // Faded behind the text so the model name keeps the full width.
+                  backdrop: f.aircraft ? (
+                    <AircraftProfile name={f.aircraft} className="h-7 w-24" />
+                  ) : undefined,
+                  value: n,
+                  display: `${n}×`,
+                }
               })}
             />
           ) : (
@@ -445,7 +453,7 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
             <th className="px-2 py-2 font-medium">Date</th>
             <th className="px-2 py-2 font-medium">Route</th>
             <th className="hidden px-2 py-2 font-medium md:table-cell">Flight</th>
-            <th className="hidden px-2 py-2 font-medium 2xl:table-cell">Aircraft</th>
+            <th className="hidden px-2 py-2 font-medium lg:table-cell">Aircraft</th>
             <th className="px-2 py-2 text-right font-medium">Time</th>
             <th className="hidden px-2 py-2 text-right font-medium sm:table-cell">Arrival</th>
             <th className="hidden px-2 py-2 font-medium sm:table-cell">Timeline</th>
@@ -475,7 +483,20 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
                 <td className="hidden px-2 py-2 whitespace-nowrap text-ink-2 md:table-cell">
                   {f.flightNo}
                 </td>
-                <td className="hidden px-2 py-2 text-ink-2 2xl:table-cell">{f.aircraft || '—'}</td>
+                <td className="hidden px-2 py-2 text-ink-2 lg:table-cell">
+                  {/* Profile from lg; the type name joins it on very wide screens. */}
+                  {f.aircraft ? (
+                    <span
+                      title={f.aircraft}
+                      className="inline-flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <AircraftProfile name={f.aircraft} className="h-4 w-11 shrink-0" />
+                      <span className="hidden 2xl:inline">{f.aircraft}</span>
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </td>
                 <td className="tabular px-2 py-2 text-right whitespace-nowrap">
                   {fmtDuration(f.durationMin)}
                 </td>
