@@ -70,6 +70,14 @@ describe('processTimeline', () => {
     expect(tl.places.find((p) => p.id === 'hotel')?.cc).toBe('PT')
   })
 
+  it("keeps each city's state / region code", () => {
+    const admin1 = j('admin1.json') as Record<string, string>
+    const lis = tl.cities.find((c) => c.name === 'Lisbon')!
+    const mad = tl.cities.find((c) => c.name === 'Madrid')!
+    expect(admin1[`${lis.cc}.${lis.admin}`]).toBe('Lisbon')
+    expect(admin1[`${mad.cc}.${mad.admin}`]).toBe('Madrid')
+  })
+
   it('detects home and a single trip to Lisbon', () => {
     expect(tl.cities[tl.homes[0].city].name).toBe('Madrid')
     expect(tl.trips).toHaveLength(1)

@@ -43,6 +43,8 @@ interface State {
   importFiles: (files: File[]) => void
   clear: (what: 'flights' | 'timeline' | 'all') => Promise<void>
   switchProfile: (id: string) => Promise<void>
+  /** Fill in state codes on older imports of the active profile. */
+  ensureStates: () => Promise<void>
   createProfile: (name: string) => Promise<void>
   renameProfile: (id: string, name: string) => void
   deleteProfile: (id: string) => Promise<void>
@@ -80,6 +82,36 @@ const queue = <T>(fn: () => Promise<T>): Promise<T> => {
   return next
 }
 
+/**
+ * Datasets imported before state codes were stored get them filled in once, in the worker
+ * (which already has the city reference data), then saved back.
+ */
+function backfillStates(profileId: string, data: Dataset): Promise<Dataset | null> {
+  const tl = data.timeline
+  if (!tl || tl.cities.every((c) => c.admin !== undefined)) return Promise.resolve(null)
+  const w = getWorker()
+  const id = ++jobSeq
+  return new Promise((resolve) => {
+    const onMsg = (ev: MessageEvent<WorkerResponse>) => {
+      if (ev.data.id !== id) return
+      w.removeEventListener('message', onMsg)
+      if (ev.data.type !== 'states') return resolve(null)
+      const admin = ev.data.admin
+      const next = {
+        ...data,
+        timeline: { ...tl, cities: tl.cities.map((c, i) => ({ ...c, admin: admin[i] ?? '' })) },
+      }
+      void queue(() => saveDataset(profileId, next))
+      resolve(next)
+    }
+    w.addEventListener('message', onMsg)
+    w.postMessage({
+      id,
+      states: tl.cities.map(({ name, cc, lat, lon }) => ({ name, cc, lat, lon })),
+    })
+  })
+}
+
 /** Filters and selection belong to one profile's data, so they reset on every switch. */
 const freshView = { range: { from: null, to: null }, country: null, selection: null }
 
@@ -99,6 +131,14 @@ export const useStore = create<State>((set, get) => ({
     const [ref, { profiles, activeId }] = await Promise.all([loadRefData(), loadProfiles()])
     const data = await loadDataset(activeId)
     set({ ref, profiles, profileId: activeId, data, ready: true, importOpen: !hasAnyData(data) })
+    void get().ensureStates()
+  },
+
+  ensureStates: async () => {
+    const { profileId, data } = get()
+    const next = await backfillStates(profileId, data)
+    // Only apply if the same profile and dataset are still showing.
+    if (next && get().profileId === profileId && get().data === data) set({ data: next })
   },
 
   importFiles: (files) => {
@@ -120,6 +160,7 @@ export const useStore = create<State>((set, get) => ({
         if (m.type === 'progress') return patch({ stage: m.stage, pct: m.pct })
         w.removeEventListener('message', onMsg)
         if (m.type === 'error') return patch({ status: 'error', message: m.message, pct: 1 })
+        if (m.type === 'states') return
         if (!get().profiles.some((p) => p.id === profileId)) {
           return patch({ status: 'error', message: 'Profile was deleted', pct: 1 })
         }
@@ -177,6 +218,7 @@ export const useStore = create<State>((set, get) => ({
     // profileId and data change together, so nothing ever saves one profile's data under another.
     set({ profileId: id, data, ...freshView, importOpen: !hasAnyData(data) })
     await saveProfiles(get().profiles, id)
+    void get().ensureStates()
   },
 
   createProfile: async (name) => {

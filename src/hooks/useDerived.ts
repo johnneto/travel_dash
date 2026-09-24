@@ -31,6 +31,11 @@ export function useDerived() {
   return useMemo(() => {
     const fd = applyFilters(data.flights, tl, { range, country })
     const cStats = countryStats(fd, tl)
+    // The country list itself ignores the country filter (period only), so picking a country
+    // highlights it instead of narrowing the list to its neighbours.
+    const cStatsAll = country
+      ? countryStats(applyFilters(data.flights, tl, { range, country: null }), tl)
+      : cStats
     const ov = overview(fd, tl, ref.countries, cStats)
     const fStats = flightStats(fd.flights)
     const mStats = movementStats(fd.activities, fd.flights)
@@ -52,6 +57,7 @@ export function useDerived() {
     const base = {
       fd,
       cStats,
+      cStatsAll,
       ov,
       fStats,
       mStats,

@@ -5,7 +5,14 @@ import type { Topology, GeometryCollection } from 'topojson-specification'
 import type { Feature, MultiPolygon, Polygon } from 'geojson'
 import type { City } from '../types'
 
-export type RawCity = [name: string, cc: string, lat: number, lon: number, pop: number]
+export type RawCity = [
+  name: string,
+  cc: string,
+  lat: number,
+  lon: number,
+  pop: number,
+  admin: string,
+]
 
 interface CountryPoly {
   cc: string
@@ -134,9 +141,13 @@ export class ReverseGeocoder {
 
   toCity(idx: number): City {
     const c = this.cities[idx]
-    return { name: c[0], cc: c[1], lat: c[2], lon: c[3], pop: c[4] }
+    return { name: c[0], cc: c[1], lat: c[2], lon: c[3], pop: c[4], admin: c[5] ?? '' }
   }
 }
+
+/** Key matching a stored City to its reference-data row. */
+export const cityKey = (c: { name: string; cc: string; lat: number; lon: number }) =>
+  `${c.cc}|${c.name}|${c.lat}|${c.lon}`
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
   const r = Math.PI / 180

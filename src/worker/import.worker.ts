@@ -1,18 +1,22 @@
 /// <reference lib="webworker" />
 import type { Topology } from 'topojson-specification'
-import { ReverseGeocoder, type RawCity } from '../lib/geocoder'
+import { cityKey, ReverseGeocoder, type RawCity } from '../lib/geocoder'
 import { enrichFlights, ImportError, parseFlightyCsv } from '../lib/parsers/flighty'
 import { parseTimeline } from '../lib/parsers/timeline'
 import { processTimeline } from '../lib/process/timeline'
 import { buildAirlines, buildAirports, getJson } from '../lib/refdata'
 import type { Flight, TimelineData } from '../types'
 
-export type WorkerRequest = { id: number; file: File }
+export type WorkerRequest =
+  | { id: number; file: File }
+  /** Look up state codes for cities imported before they were stored. */
+  | { id: number; states: { name: string; cc: string; lat: number; lon: number }[] }
 export type WorkerResponse =
   | { id: number; type: 'progress'; stage: string; pct: number }
   | { id: number; type: 'flights'; flights: Flight[]; unknownAirports: string[]; name: string }
   | { id: number; type: 'timeline'; timeline: TimelineData; name: string }
   | { id: number; type: 'error'; message: string }
+  | { id: number; type: 'states'; admin: string[] }
 
 const post = (m: WorkerResponse) => (self as unknown as DedicatedWorkerGlobalScope).postMessage(m)
 
@@ -38,6 +42,19 @@ function sniff(name: string, head: string): 'flights' | 'timeline' | null {
 }
 
 self.onmessage = async (ev: MessageEvent<WorkerRequest>) => {
+  if ('states' in ev.data) {
+    const { id, states } = ev.data
+    try {
+      const geo = await getGeocoder()
+      const byKey = new Map(
+        geo.cities.map((c) => [cityKey({ name: c[0], cc: c[1], lat: c[2], lon: c[3] }), c[5]]),
+      )
+      post({ id, type: 'states', admin: states.map((c) => byKey.get(cityKey(c)) ?? '') })
+    } catch (e) {
+      post({ id, type: 'error', message: e instanceof Error ? e.message : String(e) })
+    }
+    return
+  }
   const { id, file } = ev.data
   const progress = (stage: string, pct: number) => post({ id, type: 'progress', stage, pct })
   try {
