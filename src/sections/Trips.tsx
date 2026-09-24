@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Plane } from 'lucide-react'
 import type { Derived } from '../hooks/useDerived'
 import { MissingSource } from '../components/MissingSource'
-import { BarList, Card, Empty, Grid, Stat } from '../components/ui'
+import { BarList, Card, Empty, Grid, Stat, StatGrid } from '../components/ui'
 import { Heatmap } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { fmtDate, fmtKm, fmtNum, plural, WEEKDAYS } from '../lib/format'
@@ -49,7 +49,7 @@ export function Trips({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <StatGrid max={4}>
         <Stat label="Trips" value={fd.trips.length} hint={`more than ${AWAY_KM} km from home`} />
         <Stat
           label="Median length"
@@ -66,7 +66,7 @@ export function Trips({ d }: { d: Derived }) {
           value={fmtNum(fd.days.filter((x) => x.far >= AWAY_KM).length)}
           hint="in this selection"
         />
-      </div>
+      </StatGrid>
 
       <Card
         title="Days away from home"

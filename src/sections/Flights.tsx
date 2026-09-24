@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { CalendarClock, Search } from 'lucide-react'
 import type { Derived } from '../hooks/useDerived'
 import type { Flight } from '../types'
-import { BarList, Card, Empty, Grid, Pill, Stat } from '../components/ui'
+import { BarList, Card, Empty, Grid, Pill, Stat, StatGrid } from '../components/ui'
 import { ColumnChart } from '../components/charts'
 import { useStore } from '../store/useStore'
 import {
@@ -146,7 +146,7 @@ export function Flights({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-6">
+      <StatGrid>
         <Stat
           label="Flights"
           value={s.count}
@@ -177,7 +177,7 @@ export function Flights({ d }: { d: Derived }) {
           value={pct(s.onTimePct)}
           hint={s.medianDepDelay != null ? `median dep. delay ${fmtDelay(s.medianDepDelay)}` : '—'}
         />
-      </div>
+      </StatGrid>
 
       <Card title="Records" subtitle="Click one to see it on the globe">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">

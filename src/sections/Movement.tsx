@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { Derived } from '../hooks/useDerived'
 import { MissingSource } from '../components/MissingSource'
-import { BarList, Card, Grid, Stat } from '../components/ui'
+import { BarList, Card, Grid, Stat, StatGrid } from '../components/ui'
 import { ColumnChart, StackedColumns } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { CO2_PER_KM, MODE_LABEL } from '../lib/stats'
@@ -64,7 +64,7 @@ export function Movement({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <StatGrid max={4}>
         <Stat
           label="Ground distance"
           value={fmtKm(m.groundKm)}
@@ -81,7 +81,7 @@ export function Movement({ d }: { d: Derived }) {
           hint={`${fmtNum(hours)} hours on the ground`}
         />
         <Stat label="CO₂e estimate" value={`${fmtNum1(m.co2 / 1000)} t`} hint="incl. flights" />
-      </div>
+      </StatGrid>
 
       <Grid>
         <Card title="Distance by mode">

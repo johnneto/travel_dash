@@ -185,6 +185,25 @@ export function Segmented<T extends string>({
   )
 }
 
+/**
+ * A row of Stat tiles. Columns follow the width the section actually has (a container
+ * query), not the screen, so tiles never get squeezed next to the globe.
+ */
+export function StatGrid({ children, max = 3 }: { children: ReactNode; max?: 3 | 4 }) {
+  return (
+    <div className="@container">
+      <div
+        className={clsx(
+          'grid grid-cols-2 gap-3 sm:gap-4',
+          max === 3 ? '@2xl:grid-cols-3' : '@3xl:grid-cols-4',
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export function Grid({
   children,
   cols = 'sm:grid-cols-2',
