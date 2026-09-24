@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Plane } from 'lucide-react'
 import type { Derived } from '../hooks/useDerived'
+import { MissingSource } from '../components/MissingSource'
 import { BarList, Card, Empty, Grid, Stat } from '../components/ui'
 import { Heatmap } from '../components/charts'
 import { useStore } from '../store/useStore'
@@ -33,7 +34,9 @@ export function Trips({ d }: { d: Derived }) {
   if (!tl) {
     return (
       <Card>
-        <Empty>Trips are detected from Google Timeline data — import it to see them.</Empty>
+        <MissingSource>
+          Trips are detected from Google Timeline data — import it to see them.
+        </MissingSource>
       </Card>
     )
   }

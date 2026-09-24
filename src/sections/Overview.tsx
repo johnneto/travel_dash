@@ -14,6 +14,17 @@ export function Overview({ d }: { d: Derived }) {
   const setTab = useStore((s) => s.setTab)
   const setRange = useStore((s) => s.setRange)
   const hasTimeline = !!d.tl
+  const hasFlighty = d.cross.matches.size > 0
+  const needsTimeline = 'Needs Timeline data'
+  // Timeline-only profiles still get a flight count from the flights Google recorded.
+  const googleFlights = useMemo(
+    () =>
+      d.cross.unlogged.filter((u) => {
+        const day = new Date(u.s).toISOString().slice(0, 10)
+        return (!d.range.from || day >= d.range.from) && (!d.range.to || day <= d.range.to)
+      }),
+    [d.cross.unlogged, d.range],
+  )
   const [metric, setMetric] = useState<Metric>(hasTimeline ? 'away' : 'flights')
   const [showAll, setShowAll] = useState(false)
 
@@ -89,35 +100,46 @@ export function Overview({ d }: { d: Derived }) {
         />
         <Stat
           label="Cities & towns"
-          value={fmtNum(ov.cities.size)}
-          hint={hasTimeline ? `${fmtNum(ov.daysTracked)} days tracked` : 'Needs Timeline data'}
+          value={hasTimeline ? fmtNum(ov.cities.size) : '—'}
+          hint={hasTimeline ? `${fmtNum(ov.daysTracked)} days tracked` : needsTimeline}
           onClick={() => setTab('places')}
         />
         <Stat
           label="Trips"
-          value={fd.trips.length}
-          hint={`${fmtNum(ov.daysAway)} days away`}
+          value={hasTimeline ? fd.trips.length : '—'}
+          hint={hasTimeline ? `${fmtNum(ov.daysAway)} days away` : needsTimeline}
           onClick={() => setTab('trips')}
         />
         <Stat
           label="Days abroad"
-          value={fmtNum(ov.daysAbroad)}
+          value={hasTimeline ? fmtNum(ov.daysAbroad) : '—'}
           hint={
-            ov.daysTracked
-              ? `${Math.round((ov.daysAbroad / ov.daysTracked) * 100)}% of tracked days`
-              : '—'
+            !hasTimeline
+              ? needsTimeline
+              : ov.daysTracked
+                ? `${Math.round((ov.daysAbroad / ov.daysTracked) * 100)}% of tracked days`
+                : '—'
           }
         />
-        <Stat
-          label="Flights"
-          value={fStats.count}
-          hint={fmtKm(fStats.km)}
-          onClick={() => setTab('flights')}
-        />
+        {hasFlighty || !hasTimeline ? (
+          <Stat
+            label="Flights"
+            value={hasFlighty ? fStats.count : '—'}
+            hint={hasFlighty ? fmtKm(fStats.km) : 'Needs Flighty data'}
+            onClick={() => setTab('flights')}
+          />
+        ) : (
+          <Stat
+            label="Flights"
+            value={googleFlights.length}
+            hint={`${fmtKm(googleFlights.reduce((a, u) => a + u.km, 0))} · seen by Google`}
+            onClick={() => setTab('flights')}
+          />
+        )}
         <Stat
           label="Ground travel"
-          value={fmtKm(mStats.groundKm)}
-          hint="car, train, walking…"
+          value={hasTimeline ? fmtKm(mStats.groundKm) : '—'}
+          hint={hasTimeline ? 'car, train, walking…' : needsTimeline}
           onClick={() => setTab('movement')}
         />
       </div>
@@ -157,7 +179,7 @@ export function Overview({ d }: { d: Derived }) {
                       { value: 'trips' as Metric, label: 'Trips' },
                     ]
                   : []),
-                { value: 'flights', label: 'Flights' },
+                ...(hasFlighty ? [{ value: 'flights' as Metric, label: 'Flights' }] : []),
                 { value: 'countries', label: 'Countries' },
               ]}
             />

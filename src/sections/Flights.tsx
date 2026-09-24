@@ -7,7 +7,8 @@ import { ColumnChart } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { fmtDate, fmtDelay, fmtDuration, fmtKm, fmtNum, pct, plural, WEEKDAYS } from '../lib/format'
 import { median } from '../lib/stats'
-import type { FlightEvidence } from '../lib/cross'
+import type { FlightEvidence, UnloggedFlight } from '../lib/cross'
+import { MissingSource } from '../components/MissingSource'
 
 const EVIDENCE: Record<
   FlightEvidence,
@@ -66,9 +67,34 @@ export function Flights({ d }: { d: Derived }) {
   const exits = matches.map((m) => m.exitMin).filter((x): x is number => x != null)
 
   if (!s.count && !fd.upcoming.length) {
+    // No Flighty log at all: fall back to the flights Google Timeline recorded, if any.
+    if (!cross.matches.size) {
+      const inRange = cross.unlogged.filter((u) => {
+        const day = new Date(u.s).toISOString().slice(0, 10)
+        return (!d.range.from || day >= d.range.from) && (!d.range.to || day <= d.range.to)
+      })
+      return (
+        <div className="space-y-4">
+          {inRange.length > 0 && (
+            <Card
+              title="Flights in your Google Timeline"
+              subtitle={`${plural(inRange.length, 'flight')} · ${fmtKm(inRange.reduce((a, u) => a + u.km, 0))} · airports inferred from where each flight started and ended`}
+            >
+              <UnloggedList items={inRange} />
+            </Card>
+          )}
+          <Card>
+            <MissingSource>
+              Import your Flighty CSV for airlines, aircraft, delays, seats and routes
+              {d.tl ? ', and to cross-check each flight against your Timeline.' : '.'}
+            </MissingSource>
+          </Card>
+        </div>
+      )
+    }
     return (
       <Card>
-        <Empty>No flights in this selection. Import your Flighty CSV to see flight stats.</Empty>
+        <Empty>No flights in this selection.</Empty>
       </Card>
     )
   }
@@ -315,32 +341,12 @@ export function Flights({ d }: { d: Derived }) {
                 <h4 className="mb-1 text-xs font-medium text-ink-3">
                   Flights in your Timeline but not in Flighty
                 </h4>
-                <ul className="divide-y divide-line text-sm">
-                  {cross.unlogged.map((u) => (
-                    <li key={u.s} className="flex items-center gap-2 py-1.5">
-                      <span className="tabular w-28 shrink-0 text-ink-2">{fmtDate(u.s)}</span>
-                      <button
-                        className="flex-1 truncate text-left hover:text-accent"
-                        onClick={() =>
-                          u.from && u.to
-                            ? select({ type: 'route', from: u.from.iata, to: u.to.iata })
-                            : select({ type: 'point', lat: u.b[0], lon: u.b[1], label: 'Arrival' })
-                        }
-                      >
-                        {u.from?.iata ?? '?'} → {u.to?.iata ?? '?'}{' '}
-                        <span className="text-ink-3">
-                          {u.from?.city} – {u.to?.city}
-                        </span>
-                      </button>
-                      <span className="tabular text-xs text-ink-2">{fmtKm(u.km)}</span>
-                    </li>
-                  ))}
-                </ul>
+                <UnloggedList items={cross.unlogged} />
               </div>
             )}
           </div>
         ) : (
-          <Empty>Import your Google Timeline to cross-check flights.</Empty>
+          <MissingSource>Import your Google Timeline to cross-check flights.</MissingSource>
         )}
       </Card>
 
@@ -440,5 +446,33 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
         </tbody>
       </table>
     </div>
+  )
+}
+
+/** Flights Google Timeline recorded (with inferred airports) that have no Flighty match. */
+function UnloggedList({ items }: { items: UnloggedFlight[] }) {
+  const select = useStore((st) => st.select)
+  return (
+    <ul className="divide-y divide-line text-sm">
+      {items.map((u) => (
+        <li key={u.s} className="flex items-center gap-2 py-1.5">
+          <span className="tabular w-28 shrink-0 text-ink-2">{fmtDate(u.s)}</span>
+          <button
+            className="flex-1 truncate text-left hover:text-accent"
+            onClick={() =>
+              u.from && u.to
+                ? select({ type: 'route', from: u.from.iata, to: u.to.iata })
+                : select({ type: 'point', lat: u.b[0], lon: u.b[1], label: 'Arrival' })
+            }
+          >
+            {u.from?.iata ?? '?'} → {u.to?.iata ?? '?'}{' '}
+            <span className="text-ink-3">
+              {u.from?.city} – {u.to?.city}
+            </span>
+          </button>
+          <span className="tabular text-xs text-ink-2">{fmtKm(u.km)}</span>
+        </li>
+      ))}
+    </ul>
   )
 }

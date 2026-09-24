@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { Derived } from '../hooks/useDerived'
-import { BarList, Card, Empty, Grid, Stat } from '../components/ui'
+import { MissingSource } from '../components/MissingSource'
+import { BarList, Card, Grid, Stat } from '../components/ui'
 import { ColumnChart, StackedColumns } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { CO2_PER_KM, MODE_LABEL } from '../lib/stats'
@@ -39,9 +40,9 @@ export function Movement({ d }: { d: Derived }) {
   if (!tl) {
     return (
       <Card>
-        <Empty>
+        <MissingSource>
           Movement stats come from Google Timeline — import it to see how you get around.
-        </Empty>
+        </MissingSource>
       </Card>
     )
   }
