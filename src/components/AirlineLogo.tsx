@@ -8,18 +8,23 @@ import { memo, useState } from 'react'
 export const AirlineLogo = memo(function AirlineLogo({
   iata,
   fallback,
+  size = 20,
 }: {
   iata: string | null
   /** Shown in the badge when there's no logo (e.g. the ICAO code). */
   fallback: string
+  /** Rendered width and height in px. */
+  size?: number
 }) {
   const [failed, setFailed] = useState(false)
-  const box = 'inline-block h-5 w-5 shrink-0 rounded align-middle'
+  const box = 'inline-block shrink-0 rounded align-middle'
+  const dims = { width: size, height: size }
   if (!iata || failed) {
     return (
       <span
         aria-hidden
-        className={`${box} bg-surface-2 text-center text-[9px] leading-5 font-semibold text-ink-3`}
+        style={{ ...dims, lineHeight: `${size}px`, fontSize: Math.round(size * 0.45) }}
+        className={`${box} bg-surface-2 text-center font-semibold text-ink-3`}
       >
         {(iata ?? fallback).slice(0, 3)}
       </span>
@@ -29,12 +34,13 @@ export const AirlineLogo = memo(function AirlineLogo({
     <img
       src={`https://pics.avs.io/al_square/64/64/${encodeURIComponent(iata)}.png`}
       alt=""
-      width={20}
-      height={20}
+      width={size}
+      height={size}
       loading="lazy"
       decoding="async"
       referrerPolicy="no-referrer"
       onError={() => setFailed(true)}
+      style={dims}
       className={`${box} bg-white object-contain`}
     />
   )

@@ -7,6 +7,7 @@ import { ColumnChart } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { fmtDate, fmtDelay, fmtDuration, fmtKm, fmtNum, pct, plural, WEEKDAYS } from '../lib/format'
 import { median } from '../lib/stats'
+import { airlineIata } from '../lib/refdata'
 import type { FlightEvidence, UnloggedFlight } from '../lib/cross'
 import { MissingSource } from '../components/MissingSource'
 import { AircraftProfile } from '../components/AircraftProfile'
@@ -69,8 +70,7 @@ export function Flights({ d }: { d: Derived }) {
     const m = new Map<string, { icao: string; iata: string | null }>()
     for (const f of fd.flights) {
       if (m.has(f.airlineName)) continue
-      const iata = ref.airlines[f.airline]?.iata || (f.airline.length === 2 ? f.airline : null)
-      m.set(f.airlineName, { icao: f.airline, iata })
+      m.set(f.airlineName, { icao: f.airline, iata: airlineIata(f.airline, ref.airlines) })
     }
     return m
   }, [fd.flights, ref.airlines])

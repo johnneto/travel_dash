@@ -15,6 +15,9 @@ import {
 import clsx from 'clsx'
 import type { Insight, InsightKind } from '../lib/insights'
 import { useStore } from '../store/useStore'
+import { AircraftProfile } from './AircraftProfile'
+import { AirlineLogo } from './AirlineLogo'
+import { SeatIcon } from './SeatIcon'
 
 const ICONS: Record<InsightKind, typeof Globe2> = {
   globe: Globe2,
@@ -56,8 +59,19 @@ export function InsightCard({ insight }: { insight: Insight }) {
         </span>
         {insight.label}
       </div>
-      <div className="mt-2 text-lg font-semibold leading-tight tracking-tight text-ink">
-        {insight.value}
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <div className="min-w-0 text-lg font-semibold leading-tight tracking-tight text-ink">
+          {insight.value}
+        </div>
+        {insight.visual?.type === 'aircraft' && (
+          <AircraftProfile name={insight.visual.name} className="h-8 w-24 shrink-0" />
+        )}
+        {insight.visual?.type === 'seat' && (
+          <SeatIcon seat={insight.visual.seat} className="h-8 w-16" />
+        )}
+        {insight.visual?.type === 'airline' && (
+          <AirlineLogo iata={insight.visual.iata} fallback={insight.visual.code} size={32} />
+        )}
       </div>
       <p className="mt-1 text-[13px] leading-snug text-ink-2">{insight.text}</p>
       {clickable && (
