@@ -287,21 +287,16 @@ export function Flights({ d }: { d: Derived }) {
         <Card title="Same plane, again" subtitle="Tail numbers you've flown more than once">
           {s.tails.length ? (
             <BarList
+              wrap
               items={s.tails.map(([t, n]) => {
                 const f = fd.flights.find((x) => x.tail === t)!
                 return {
                   key: t,
-                  label: (
-                    <>
-                      {f.aircraft && (
-                        <AircraftProfile
-                          name={f.aircraft}
-                          className="mr-2 inline-block h-5 w-14 align-middle"
-                        />
-                      )}
-                      {t} · {f.aircraft}
-                    </>
-                  ),
+                  label: `${t} · ${f.aircraft}`,
+                  // Faded behind the text so the model name keeps the full width.
+                  backdrop: f.aircraft ? (
+                    <AircraftProfile name={f.aircraft} className="h-7 w-24" />
+                  ) : undefined,
                   value: n,
                   display: `${n}×`,
                 }

@@ -79,6 +79,8 @@ export interface BarItem {
   display?: ReactNode
   onClick?: () => void
   active?: boolean
+  /** Faded picture drawn behind the label, at the right end of the row. */
+  backdrop?: ReactNode
 }
 
 /** Horizontal ranked bars — the most legible form for top-N lists. */
@@ -87,11 +89,14 @@ export function BarList({
   max,
   limit = 8,
   color = 'var(--s1)',
+  wrap = false,
 }: {
   items: BarItem[]
   max?: number
   limit?: number
   color?: string
+  /** Let long labels wrap onto a second line instead of truncating. */
+  wrap?: boolean
 }) {
   const shown = items.slice(0, limit)
   const top = max ?? Math.max(1, ...shown.map((i) => i.value))
@@ -111,7 +116,22 @@ export function BarList({
                 it.active && 'bg-surface-2 ring-1 ring-accent',
               )}
             >
-              <span className="relative z-10 min-w-0 flex-1 truncate text-ink">{it.label}</span>
+              {it.backdrop && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 right-10 flex items-center opacity-30"
+                >
+                  {it.backdrop}
+                </span>
+              )}
+              <span
+                className={clsx(
+                  'relative z-10 min-w-0 flex-1 text-ink',
+                  wrap ? 'break-words' : 'truncate',
+                )}
+              >
+                {it.label}
+              </span>
               <span className="tabular relative z-10 shrink-0 text-xs font-medium text-ink-2">
                 {it.display ?? it.value}
               </span>
