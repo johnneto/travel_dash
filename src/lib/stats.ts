@@ -181,14 +181,19 @@ export interface PlaceStat {
   p: number
   hours: number
   visits: number
+  /** Start of the first and last visit (UTC epoch ms). */
+  first: number
+  last: number
 }
 export function placeStats(fd: Filtered): PlaceStat[] {
   const m = new Map<number, PlaceStat>()
   for (const v of fd.visits) {
     let s = m.get(v.p)
-    if (!s) m.set(v.p, (s = { p: v.p, hours: 0, visits: 0 }))
+    if (!s) m.set(v.p, (s = { p: v.p, hours: 0, visits: 0, first: v.s, last: v.s }))
     s.visits++
     s.hours += (v.e - v.s) / 3600000
+    if (v.s < s.first) s.first = v.s
+    if (v.s > s.last) s.last = v.s
   }
   return [...m.values()].sort((a, b) => b.hours - a.hours)
 }
