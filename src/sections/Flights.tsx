@@ -460,7 +460,7 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
             <th className="px-2 py-2 font-medium">Date</th>
             <th className="px-2 py-2 font-medium">Route</th>
             <th className="hidden px-2 py-2 font-medium md:table-cell">Flight</th>
-            <th className="hidden px-2 py-2 font-medium 2xl:table-cell">Aircraft</th>
+            <th className="hidden px-2 py-2 font-medium lg:table-cell">Aircraft</th>
             <th className="px-2 py-2 text-right font-medium">Time</th>
             <th className="hidden px-2 py-2 text-right font-medium sm:table-cell">Arrival</th>
             <th className="hidden px-2 py-2 font-medium sm:table-cell">Timeline</th>
@@ -480,11 +480,6 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
                   {fmtDate(f.date)}
                 </td>
                 <td className="px-2 py-2 whitespace-nowrap">
-                  {f.aircraft && (
-                    <span title={f.aircraft} className="mr-2 inline-block align-middle">
-                      <AircraftProfile name={f.aircraft} className="block h-4 w-11" />
-                    </span>
-                  )}
                   <span className="font-medium">
                     {f.from} → {f.to}
                   </span>
@@ -495,7 +490,20 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
                 <td className="hidden px-2 py-2 whitespace-nowrap text-ink-2 md:table-cell">
                   {f.flightNo}
                 </td>
-                <td className="hidden px-2 py-2 text-ink-2 2xl:table-cell">{f.aircraft || '—'}</td>
+                <td className="hidden px-2 py-2 text-ink-2 lg:table-cell">
+                  {/* Profile from lg; the type name joins it on very wide screens. */}
+                  {f.aircraft ? (
+                    <span
+                      title={f.aircraft}
+                      className="inline-flex items-center gap-2 whitespace-nowrap"
+                    >
+                      <AircraftProfile name={f.aircraft} className="h-4 w-11 shrink-0" />
+                      <span className="hidden 2xl:inline">{f.aircraft}</span>
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </td>
                 <td className="tabular px-2 py-2 text-right whitespace-nowrap">
                   {fmtDuration(f.durationMin)}
                 </td>
