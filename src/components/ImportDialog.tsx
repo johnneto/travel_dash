@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
-import { useStore } from '../store/useStore'
+import { hasAnyData, useStore } from '../store/useStore'
 import { fmtDate, fmtNum } from '../lib/format'
 
 export function ImportDialog() {
@@ -21,9 +21,12 @@ export function ImportDialog() {
   const jobs = useStore((s) => s.jobs)
   const data = useStore((s) => s.data)
   const clear = useStore((s) => s.clear)
+  const profiles = useStore((s) => s.profiles)
+  const profileId = useStore((s) => s.profileId)
+  const profileName = profiles.find((p) => p.id === profileId)?.name
   const input = useRef<HTMLInputElement>(null)
   const [drag, setDrag] = useState(false)
-  const hasData = data.flights.length > 0 || !!data.timeline
+  const hasData = hasAnyData(data)
 
   useEffect(() => {
     if (!open) return
@@ -53,8 +56,9 @@ export function ImportDialog() {
               {hasData ? 'Update your data' : 'Welcome to Travel Dash'}
             </h2>
             <p className="mt-1 text-sm text-ink-2">
-              Drop your Flighty CSV and/or Google Maps Timeline JSON. A new file replaces the data
-              of the same type.
+              Importing into <span className="font-medium text-ink">{profileName}</span>. Drop a
+              Flighty CSV, a Google Maps Timeline JSON, or both — either one is enough to get
+              insights. A new file replaces the data of the same type.
             </p>
           </div>
           {hasData && (
@@ -115,6 +119,11 @@ export function ImportDialog() {
                   {j.status === 'done' && <CheckCircle2 className="h-4 w-4 text-good" />}
                   {j.status === 'error' && <TriangleAlert className="h-4 w-4 text-bad" />}
                   <span className="min-w-0 flex-1 truncate font-medium">{j.name}</span>
+                  {j.profileId !== profileId && (
+                    <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-ink-2">
+                      → {profiles.find((p) => p.id === j.profileId)?.name ?? 'deleted profile'}
+                    </span>
+                  )}
                   <span className="text-xs text-ink-3">
                     {j.status === 'running' ? j.stage : ''}
                   </span>
@@ -177,7 +186,7 @@ export function ImportDialog() {
             onClick={() => clear('all')}
             className="mt-3 text-xs font-medium text-bad hover:underline"
           >
-            Delete all stored data
+            Delete all data in this profile
           </button>
         )}
       </div>

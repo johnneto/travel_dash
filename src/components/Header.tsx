@@ -2,6 +2,7 @@ import { Globe2, Monitor, Moon, Sun, Upload, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useStore, type Theme } from '../store/useStore'
 import { discoveryCurve } from '../lib/stats'
+import { ProfileMenu } from './ProfileMenu'
 
 const selectCls =
   'h-9 rounded-lg border border-line bg-surface px-2.5 text-sm text-ink focus:border-accent focus:outline-none'
@@ -19,6 +20,7 @@ export function Header() {
           <PeriodPicker />
           <CountryPicker />
         </div>
+        <ProfileMenu />
         <ThemeToggle />
         <button
           onClick={() => setImportOpen(true)}

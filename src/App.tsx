@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import clsx from 'clsx'
 import { Loader2, Upload } from 'lucide-react'
-import { useStore, type Tab } from './store/useStore'
+import { hasAnyData, useStore, type Tab } from './store/useStore'
 import { useApplyTheme } from './hooks/useTheme'
 import { ThemeContext } from './hooks/ThemeContext'
 import { useDerived } from './hooks/useDerived'
@@ -54,7 +54,8 @@ function Dashboard() {
   const country = useStore((s) => s.country)
   const data = useStore((s) => s.data)
   const setImportOpen = useStore((s) => s.setImportOpen)
-  const hasData = data.flights.length > 0 || !!data.timeline
+  const profileId = useStore((s) => s.profileId)
+  const hasData = hasAnyData(data)
 
   return (
     <div className="min-h-dvh">
@@ -125,7 +126,8 @@ function Dashboard() {
           {!hasData ? (
             <div className="rounded-2xl border border-dashed border-line p-10 text-center">
               <p className="text-sm text-ink-2">
-                No data yet. Import your Flighty CSV and Google Timeline JSON to get started.
+                No data in this profile yet. Import a Flighty CSV, a Google Timeline JSON, or both
+                to get started.
               </p>
               <button
                 onClick={() => setImportOpen(true)}
@@ -135,13 +137,14 @@ function Dashboard() {
               </button>
             </div>
           ) : (
-            <>
+            // Keyed by profile so section-local state (metric toggles, search) resets on switch.
+            <div key={profileId}>
               {tab === 'overview' && <Overview d={d} />}
               {tab === 'places' && <Places d={d} />}
               {tab === 'flights' && <Flights d={d} />}
               {tab === 'trips' && <Trips d={d} />}
               {tab === 'movement' && <Movement d={d} />}
-            </>
+            </div>
           )}
           <footer className="mt-8 text-center text-xs text-ink-3">
             Data stays in your browser · Map data © Natural Earth, GeoNames, OurAirports/OpenFlights

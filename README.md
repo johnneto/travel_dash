@@ -18,11 +18,16 @@ Everything runs in the browser. Imported files are parsed locally (in a Web Work
   - How early you typically get to the airport, and how long it takes you to leave after landing.
   - **Flights Google saw that are missing from Flighty**, with the nearest airports inferred.
   - Flights are attached to the trips they belong to.
+- **Profiles**: separate datasets per person, switchable from the header.
 - Responsive layout (phone to ultrawide), with light, dark and system themes.
 
 ## Importing data
 
-Click **Import** and drop one or both files. A newly imported file replaces the existing data of the same type.
+Click **Import** and drop one or both files. Either source on its own is enough: with only Flighty you get flight stats, countries and routes; with only the Timeline you get places, trips, movement and the flights Google recorded. Sections that need the missing source say so and link to the import. A newly imported file replaces the existing data of the same type.
+
+### Profiles
+
+Use the profile menu in the header to keep separate datasets, for example one per traveller. Each profile stores its own imported files, and filters reset when you switch. You can create, rename and delete profiles. Deleting one removes its data from the browser. An import that is still running finishes into the profile it started in, even if you switch away.
 
 | Source               | How to export                                                          | Format                                                                                       |
 | -------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |

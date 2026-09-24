@@ -236,16 +236,21 @@ export function buildInsights(x: InsightInput): Insight[] {
       const d = new Date(u.s).toISOString().slice(0, 10)
       return (!x.range.from || d >= x.range.from) && (!x.range.to || d <= x.range.to)
     })
+    const examples = inRange
+      .slice(0, 2)
+      .map((u) => `${u.from?.iata ?? '?'}→${u.to?.iata ?? '?'} on ${fmtDate(u.s)}`)
+      .join(', ')
+    // Without a Flighty log every Google flight is "unlogged", so frame it as detection instead.
+    const hasFlighty = x.cross.matches.size > 0
     if (inRange.length)
       out.push({
         id: 'unlogged',
         kind: 'search',
-        label: 'Missing from Flighty?',
+        label: hasFlighty ? 'Missing from Flighty?' : 'Flights spotted by Google',
         value: plural(inRange.length, 'flight'),
-        text: `Google recorded flights with no match in Flighty, e.g. ${inRange
-          .slice(0, 2)
-          .map((u) => `${u.from?.iata ?? '?'}→${u.to?.iata ?? '?'} on ${fmtDate(u.s)}`)
-          .join(', ')}.`,
+        text: hasFlighty
+          ? `Google recorded flights with no match in Flighty, e.g. ${examples}.`
+          : `Google Timeline recorded flights such as ${examples}. Import Flighty for delays, aircraft and more.`,
       })
   }
 

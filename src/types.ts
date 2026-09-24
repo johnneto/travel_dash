@@ -163,6 +163,14 @@ export interface TimelineData {
   stats: { entries: number; pathPoints: number; format: string }
 }
 
+// ---------- Profiles ----------
+/** A named, separately stored set of imported data (e.g. one per traveller). */
+export interface Profile {
+  id: string
+  name: string
+  createdAt: string
+}
+
 // ---------- Persisted dataset ----------
 export interface Dataset {
   version: number
