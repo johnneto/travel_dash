@@ -211,14 +211,12 @@ export function Flights({ d }: { d: Derived }) {
       <Grid cols="sm:grid-cols-2 2xl:grid-cols-3">
         <Card title="Aircraft" subtitle={`${s.uniqueTails} individual planes recorded`}>
           <BarList
+            wrap
             items={s.aircraft.map(([k, v]) => ({
               key: k,
-              label: (
-                <>
-                  <AircraftProfile name={k} className="mr-2 inline-block h-5 w-14 align-middle" />
-                  {k}
-                </>
-              ),
+              label: k,
+              // Faded behind the text so the model name keeps the full width.
+              backdrop: <AircraftProfile name={k} className="h-7 w-24" />,
               value: v,
             }))}
           />
