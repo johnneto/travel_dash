@@ -15,7 +15,7 @@ type SortKey = 'days' | 'name' | 'first' | 'last'
 type CitySortKey = SortKey | 'state'
 
 export function Places({ d }: { d: Derived }) {
-  const { cStatsAll, ref, tl, cities, places, ext } = d
+  const { cStatsAll, ref, tl, cities, places, awayPlaces, ext } = d
   const setCountry = useStore((s) => s.setCountry)
   const country = useStore((s) => s.country)
   const select = useStore((s) => s.select)
@@ -38,16 +38,7 @@ export function Places({ d }: { d: Derived }) {
   const placeLabel = (p: Place) =>
     `${cityName(p.city) || 'Unknown'}${p.cc ? `, ${ref.countries[p.cc]?.name ?? p.cc}` : ''}`
 
-  const topPlaces = useMemo(() => {
-    if (!tl) return []
-    return places
-      .filter(
-        (s) =>
-          placeMode === 'all' ||
-          !['Home', 'Inferred Home', 'Work', 'Inferred Work'].includes(tl.places[s.p].sem),
-      )
-      .slice(0, 10)
-  }, [places, tl, placeMode])
+  const topPlaces = (placeMode === 'all' ? places : awayPlaces).slice(0, 10)
 
   return (
     <div className="space-y-4">
@@ -180,7 +171,7 @@ export function Places({ d }: { d: Derived }) {
                     >
                       {placeLabel(p)}
                     </button>
-                    {p.sem !== 'Unknown' && <Pill tone="accent">{p.sem}</Pill>}
+                    {s.sem !== 'Unknown' && <Pill tone="accent">{s.sem}</Pill>}
                     <span className="tabular text-xs text-ink-2">
                       {fmtHours(s.hours)} · {s.visits}×
                     </span>

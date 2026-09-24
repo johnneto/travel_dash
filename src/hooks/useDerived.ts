@@ -10,6 +10,7 @@ import {
   flightStats,
   movementStats,
   overview,
+  HOME_WORK_SEMANTICS,
   placeStats,
 } from '../lib/stats'
 import { buildInsights } from '../lib/insights'
@@ -40,7 +41,10 @@ export function useDerived() {
     const fStats = flightStats(fd.flights)
     const mStats = movementStats(fd.activities, fd.flights)
     const cities = cityStats(fd, tl)
-    const places = placeStats(fd)
+    const places = placeStats(fd.visits)
+    // Excludes visits by what the place was *at the time*: after moving, the old home counts
+    // again, and the new one only stops counting once it became Home.
+    const awayPlaces = placeStats(fd.visits, (v) => !HOME_WORK_SEMANTICS.has(v.sem))
     const ext = extremes(fd, tl)
     const homeCc = (() => {
       if (!tl)
@@ -63,6 +67,7 @@ export function useDerived() {
       mStats,
       cities,
       places,
+      awayPlaces,
       ext,
       cross,
       discovery,

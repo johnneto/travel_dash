@@ -100,7 +100,7 @@ function ResultRow({ r, d }: { r: PlaceSearchResult; d: Derived }) {
                     · {fmtHours(s.hours)} · {s.visits}× · last {fmtDate(s.last)}
                   </span>
                 </button>
-                {p.sem !== 'Unknown' && <Pill tone="accent">{p.sem}</Pill>}
+                {s.sem !== 'Unknown' && <Pill tone="accent">{s.sem}</Pill>}
                 <a
                   href={
                     p.id.startsWith('Ch')
