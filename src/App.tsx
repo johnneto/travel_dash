@@ -8,6 +8,7 @@ import { useDerived } from './hooks/useDerived'
 import { Header } from './components/Header'
 import { ImportDialog } from './components/ImportDialog'
 import { SelectionCard } from './components/SelectionCard'
+import { YearBar } from './components/YearBar'
 import { Overview } from './sections/Overview'
 import { Places } from './sections/Places'
 import { Flights } from './sections/Flights'
@@ -139,6 +140,7 @@ function Dashboard() {
           ) : (
             // Keyed by profile so section-local state (metric toggles, search) resets on switch.
             <div key={profileId}>
+              <YearBar />
               {tab === 'overview' && <Overview d={d} />}
               {tab === 'places' && <Places d={d} />}
               {tab === 'flights' && <Flights d={d} />}

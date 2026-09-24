@@ -7,7 +7,7 @@ Everything runs in the browser. Imported files are parsed locally (in a Web Work
 ## Features
 
 - **3D interactive globe** ([globe.gl](https://github.com/vasturiano/react-globe.gl)): visited countries shaded by days spent, flight arcs, city markers. The camera flies to whatever you select: a country, city, airport, route, flight or trip. Selecting a trip traces your path.
-- **Global filters**: a time period (all time, last 12 months, any year, custom range) and a country. Every section, fact and globe layer updates to match.
+- **Global filters**: a time period (all time, last 12 months, any year, custom range) and a country. A year bar above every section switches between _All time_ and each year with one click. Every section, fact and globe layer updates to match.
 - **Overview**: headline KPIs, a _Did you know?_ list of facts that changes with the filters, travel per year, countries discovered over time, and continent coverage.
 - **Places**: a search across every city and place in your Timeline (by city, country, continent or place type such as Home or Work, accent-insensitive), a sortable country table (days, trips, cities, first and last visit), top cities, most visited places (with Google Maps links), the geographic extremes, and a history of where you lived.
 - **Flights**: records (longest and shortest by distance and by time, fastest, most delayed, longest taxi, biggest time-zone jump), aircraft, airlines, manufacturers, airports, routes, repeat tail numbers, punctuality, departure hour and weekday, seat and cabin, upcoming flights, and a searchable flight log.
