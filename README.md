@@ -2,7 +2,7 @@
 
 A personal travel dashboard that turns your **Google Maps Timeline** export and your **Flighty** flight log into an interactive 3D globe and a set of insights about the countries, cities and places you've been.
 
-Everything runs in the browser. Imported files are parsed locally (in a Web Worker) and stored in IndexedDB. Nothing is uploaded, and no personal data is ever committed to this repo.
+Everything runs in the browser. Imported files are parsed locally (in a Web Worker) and stored in IndexedDB. Nothing is uploaded, and no personal data is ever committed to this repo. The one outside request is for airline logos, loaded from the public Aviasales logo CDN (`pics.avs.io`) by two-letter airline code, with no referrer sent. Aircraft profiles are drawn in the app.
 
 ## Features
 
@@ -10,7 +10,7 @@ Everything runs in the browser. Imported files are parsed locally (in a Web Work
 - **Global filters**: a time period (all time, last 12 months, any year, custom range) and a country. A year bar above every section switches between _All time_ and each year with one click. Every section, fact and globe layer updates to match.
 - **Overview**: headline KPIs, a _Did you know?_ list of facts that changes with the filters, travel per year, countries discovered over time, and continent coverage.
 - **Places**: a search across every city and place in your Timeline (by city, country, continent or place type such as Home or Work, accent-insensitive), a sortable country table (days, trips, cities, first and last visit), top cities, most visited places (with Google Maps links), the geographic extremes, and a history of where you lived.
-- **Flights**: records (longest and shortest by distance and by time, fastest, most delayed, longest taxi, biggest time-zone jump), aircraft, airlines, manufacturers, airports, routes, repeat tail numbers, punctuality, departure hour and weekday, seat and cabin, upcoming flights, and a searchable flight log.
+- **Flights**: a livery-free side profile of every aircraft type, drawn from its real proportions, and airline logos; records (longest and shortest by distance and by time, fastest, most delayed, longest taxi, biggest time-zone jump), aircraft, airlines, manufacturers, airports, routes, repeat tail numbers, punctuality, departure hour and weekday, seat and cabin, upcoming flights, and a searchable flight log.
 - **Trips**: trips detected automatically, a month × year heatmap of days away, trip-length and start-day distributions, and a trip list.
 - **Movement**: distance and time by transport mode, longest single journeys, km per year by mode, weekday patterns, and a CO₂e estimate.
 - **Timeline × Flighty cross-reference**

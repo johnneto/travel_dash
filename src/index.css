@@ -25,6 +25,11 @@
   --bad: #c62828;
   --globe-ocean: #dfe8f1;
   --globe-land: #fbfbf9;
+  /* Livery-free aircraft profiles */
+  --plane-body: #ffffff;
+  --plane-shade: #dde1e7;
+  --plane-line: #737a84;
+  --plane-window: #3d4450;
 }
 
 .dark {
@@ -50,6 +55,10 @@
   --bad: #ef6b6b;
   --globe-ocean: #0d1622;
   --globe-land: #2b2f36;
+  --plane-body: #d9dce1;
+  --plane-shade: #b3b9c2;
+  --plane-line: #5c626b;
+  --plane-window: #2a2f37;
 }
 
 @theme inline {

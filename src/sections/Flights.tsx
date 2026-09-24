@@ -9,6 +9,8 @@ import { fmtDate, fmtDelay, fmtDuration, fmtKm, fmtNum, pct, plural, WEEKDAYS } 
 import { median } from '../lib/stats'
 import type { FlightEvidence, UnloggedFlight } from '../lib/cross'
 import { MissingSource } from '../components/MissingSource'
+import { AircraftProfile } from '../components/AircraftProfile'
+import { AirlineLogo } from '../components/AirlineLogo'
 
 const EVIDENCE: Record<
   FlightEvidence,
@@ -62,6 +64,16 @@ export function Flights({ d }: { d: Derived }) {
     }
     return m
   }, [fd.flights, cross])
+  // Airline stats are keyed by name; logos need the IATA code.
+  const airlineCodes = useMemo(() => {
+    const m = new Map<string, { icao: string; iata: string | null }>()
+    for (const f of fd.flights) {
+      if (m.has(f.airlineName)) continue
+      const iata = ref.airlines[f.airline]?.iata || (f.airline.length === 2 ? f.airline : null)
+      m.set(f.airlineName, { icao: f.airline, iata })
+    }
+    return m
+  }, [fd.flights, ref.airlines])
   const matches = fd.flights.map((f) => cross.matches.get(f.id)!).filter(Boolean)
   const leads = matches.map((m) => m.leadMin).filter((x): x is number => x != null)
   const exits = matches.map((m) => m.exitMin).filter((x): x is number => x != null)
@@ -188,10 +200,37 @@ export function Flights({ d }: { d: Derived }) {
 
       <Grid cols="sm:grid-cols-2 2xl:grid-cols-3">
         <Card title="Aircraft" subtitle={`${s.uniqueTails} individual planes recorded`}>
-          <BarList items={s.aircraft.map(([k, v]) => ({ key: k, label: k, value: v }))} />
+          <BarList
+            items={s.aircraft.map(([k, v]) => ({
+              key: k,
+              label: (
+                <>
+                  <AircraftProfile name={k} className="mr-2 inline-block h-5 w-14 align-middle" />
+                  {k}
+                </>
+              ),
+              value: v,
+            }))}
+          />
         </Card>
         <Card title="Airlines">
-          <BarList items={s.airlines.map(([k, v]) => ({ key: k, label: k, value: v }))} />
+          <BarList
+            items={s.airlines.map(([k, v]) => {
+              const code = airlineCodes.get(k)
+              return {
+                key: k,
+                label: (
+                  <>
+                    <span className="mr-2">
+                      <AirlineLogo iata={code?.iata ?? null} fallback={code?.icao ?? k} />
+                    </span>
+                    {k}
+                  </>
+                ),
+                value: v,
+              }
+            })}
+          />
         </Card>
         <Card title="Manufacturers">
           <BarList

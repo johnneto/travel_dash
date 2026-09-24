@@ -150,6 +150,7 @@ function Dashboard() {
           )}
           <footer className="mt-8 text-center text-xs text-ink-3">
             Data stays in your browser · Map data © Natural Earth, GeoNames, OurAirports/OpenFlights
+            · Airline logos via Aviasales
           </footer>
         </div>
       </main>
