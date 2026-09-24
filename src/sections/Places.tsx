@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore'
 import { fmtDate, fmtHours, fmtKm, fmtNum } from '../lib/format'
 import { continentOf } from '../lib/refdata'
 import type { Place } from '../types'
+import { PlaceSearch } from '../components/PlaceSearch'
 
 type SortKey = 'days' | 'name' | 'first' | 'last'
 
@@ -46,6 +47,7 @@ export function Places({ d }: { d: Derived }) {
 
   return (
     <div className="space-y-4">
+      <PlaceSearch d={d} />
       <Card
         title="Countries"
         subtitle="Days are calendar days with any Timeline presence. Click a row to focus the dashboard on it."
