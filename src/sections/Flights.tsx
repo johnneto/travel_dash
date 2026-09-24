@@ -289,7 +289,22 @@ export function Flights({ d }: { d: Derived }) {
             <BarList
               items={s.tails.map(([t, n]) => {
                 const f = fd.flights.find((x) => x.tail === t)!
-                return { key: t, label: `${t} · ${f.aircraft}`, value: n, display: `${n}×` }
+                return {
+                  key: t,
+                  label: (
+                    <>
+                      {f.aircraft && (
+                        <AircraftProfile
+                          name={f.aircraft}
+                          className="mr-2 inline-block h-5 w-14 align-middle"
+                        />
+                      )}
+                      {t} · {f.aircraft}
+                    </>
+                  ),
+                  value: n,
+                  display: `${n}×`,
+                }
               })}
             />
           ) : (
@@ -465,6 +480,11 @@ function FlightTable({ flights, d, scroll }: { flights: Flight[]; d: Derived; sc
                   {fmtDate(f.date)}
                 </td>
                 <td className="px-2 py-2 whitespace-nowrap">
+                  {f.aircraft && (
+                    <span title={f.aircraft} className="mr-2 inline-block align-middle">
+                      <AircraftProfile name={f.aircraft} className="block h-4 w-11" />
+                    </span>
+                  )}
                   <span className="font-medium">
                     {f.from} → {f.to}
                   </span>
