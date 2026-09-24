@@ -1,7 +1,8 @@
 import type { DateRange, Selection, TimelineData } from '../types'
 import type { CrossData } from './cross'
-import type { RefData } from './refdata'
+import { airlineIata, type RefData } from './refdata'
 import {
+  countBy,
   median,
   type CityStat,
   type CountryStat,
@@ -13,6 +14,8 @@ import {
 } from './stats'
 import { EARTH_CIRCUMFERENCE_KM, MOON_DISTANCE_KM } from './geo'
 import { fmtDate, fmtDuration, fmtHours, fmtKm, fmtNum, fmtNum1, MONTHS, plural } from './format'
+
+export type SeatKind = 'window' | 'middle' | 'aisle'
 
 export type InsightKind =
   | 'globe'
@@ -28,6 +31,13 @@ export type InsightKind =
   | 'search'
   | 'seat'
 
+/** A picture shown beside the tile's value. */
+export type InsightVisual =
+  | { type: 'aircraft'; name: string }
+  | { type: 'airline'; iata: string | null; code: string }
+  | { type: 'seat'; seat: SeatKind }
+  | { type: 'flag'; emoji: string }
+
 export interface Insight {
   id: string
   kind: InsightKind
@@ -35,6 +45,7 @@ export interface Insight {
   value: string
   text: string
   select?: Selection
+  visual?: InsightVisual
 }
 
 export interface InsightInput {
@@ -126,8 +137,52 @@ export function buildInsights(x: InsightInput): Insight[] {
             ? `${plural(fs.manufacturers[0][1], 'flight')} were on ${fs.manufacturers[0][0]} jets.`
             : ''
         }`,
+        visual: { type: 'aircraft', name: fs.aircraft[0][0] },
       })
     }
+    if (fs.airlines[0]) {
+      const [name, n] = fs.airlines[0]
+      const code = fd.flights.find((q) => q.airlineName === name)?.airline ?? ''
+      out.push({
+        id: 'top-airline',
+        kind: 'plane',
+        label: 'Most flown airline',
+        value: name,
+        text: `${plural(n, 'flight')} (${Math.round((n / fs.count) * 100)}%)${
+          fs.airlines.length > 1 ? `, out of ${fs.airlines.length} airlines flown` : ''
+        } ${periodLabel}.`,
+        visual: { type: 'airline', iata: airlineIata(code, ref.airlines), code },
+      })
+    }
+    // Countries by arrivals and by departures. Home would top both lists for almost everyone,
+    // so it's left out unless it's the only country.
+    const countryTile = (id: string, label: string, verb: string, counts: [string, number][]) => {
+      const pick = counts.find(([cc]) => cc !== x.homeCc) ?? counts[0]
+      const c = pick && ref.countries[pick[0]]
+      if (!pick || !c) return
+      const home = x.homeCc && pick[0] !== x.homeCc ? ref.countries[x.homeCc]?.name : null
+      out.push({
+        id,
+        kind: 'globe',
+        label,
+        value: c.name,
+        text: `${plural(pick[1], 'flight')} ${verb} ${c.name} ${periodLabel}${home ? ` — the most outside ${home}` : ''}.`,
+        select: { type: 'country', cc: pick[0] },
+        visual: { type: 'flag', emoji: c.flag },
+      })
+    }
+    countryTile(
+      'top-country-to',
+      'Most flown to',
+      'landed in',
+      countBy(fd.flights, (q) => q.toCc),
+    )
+    countryTile(
+      'top-country-from',
+      'Most flown from',
+      'took off from',
+      countBy(fd.flights, (q) => q.fromCc),
+    )
     if (fs.routes[0] && fs.routes[0][1] > 1) {
       const [a, b] = fs.routes[0][0].split('–')
       out.push({
@@ -148,6 +203,7 @@ export function buildInsights(x: InsightInput): Insight[] {
         value: `${f.from} → ${f.to}`,
         text: `${fmtKm(f.distanceKm)} in ${fmtDuration(f.durationMin)} on ${f.airlineName} (${f.aircraft || 'unknown aircraft'}), ${fmtDate(f.date)}.`,
         select: { type: 'flight', id: f.id },
+        visual: f.aircraft ? { type: 'aircraft', name: f.aircraft } : undefined,
       })
     }
     if (fs.shortest && fs.count > 1) {
@@ -159,6 +215,7 @@ export function buildInsights(x: InsightInput): Insight[] {
         value: `${f.from} → ${f.to}`,
         text: `Just ${fmtKm(f.distanceKm)}${f.airMin ? ` and ${fmtDuration(f.airMin)} in the air` : ''} on ${fmtDate(f.date)}.`,
         select: { type: 'flight', id: f.id },
+        visual: f.aircraft ? { type: 'aircraft', name: f.aircraft } : undefined,
       })
     }
     if (fs.tails[0]) {
@@ -174,6 +231,7 @@ export function buildInsights(x: InsightInput): Insight[] {
             ? ` — and ${plural(fs.tails.length - 1, 'other plane')} more than once`
             : ''
         }.`,
+        visual: f.aircraft ? { type: 'aircraft', name: f.aircraft } : undefined,
       })
     }
     if (fs.onTimePct != null && fs.punctualityN >= 5) {
@@ -199,6 +257,10 @@ export function buildInsights(x: InsightInput): Insight[] {
         label: 'Seat preference',
         value: `${seats[0][0][0].toUpperCase()}${seats[0][0].slice(1)} person`,
         text: `${seats.map(([k, v]) => `${k} ${Math.round((v / total) * 100)}%`).join(' · ')} (of ${plural(total, 'flight')} with a seat recorded).`,
+        visual:
+          seats[0][0] === 'window' || seats[0][0] === 'middle' || seats[0][0] === 'aisle'
+            ? { type: 'seat', seat: seats[0][0] as SeatKind }
+            : undefined,
       })
     }
     if (fs.biggestTzShift && Math.abs(fs.biggestTzShift.tzShiftH) >= 3) {
@@ -382,6 +444,9 @@ export function buildInsights(x: InsightInput): Insight[] {
     'top-route',
     'longest-flight',
     'top-aircraft',
+    'top-airline',
+    'top-country-to',
+    'top-country-from',
     'farthest',
     'airport-habit',
     'multi-country',

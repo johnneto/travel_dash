@@ -4,7 +4,8 @@ import { Card, Grid, Segmented, Stat, BarList } from '../components/ui'
 import { ColumnChart, StepArea } from '../components/charts'
 import { InsightCard } from '../components/InsightCard'
 import { CONTINENTS, continentOf } from '../lib/refdata'
-import { fmtKm, fmtNum, plural } from '../lib/format'
+import { Building2, CalendarDays, Car, Globe2, Luggage, Plane } from 'lucide-react'
+import { fmtKm, fmtKmShort, fmtNum, plural } from '../lib/format'
 import { useStore } from '../store/useStore'
 
 type Metric = 'away' | 'trips' | 'flights' | 'countries'
@@ -94,24 +95,28 @@ export function Overview({ d }: { d: Derived }) {
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-6">
         <Stat
           label="Countries"
+          icon={Globe2}
           value={ov.countries.length}
           hint={plural(ov.continents.size, 'continent')}
           onClick={() => setTab('places')}
         />
         <Stat
           label="Cities & towns"
+          icon={Building2}
           value={hasTimeline ? fmtNum(ov.cities.size) : '—'}
           hint={hasTimeline ? `${fmtNum(ov.daysTracked)} days tracked` : needsTimeline}
           onClick={() => setTab('places')}
         />
         <Stat
           label="Trips"
+          icon={Luggage}
           value={hasTimeline ? fd.trips.length : '—'}
           hint={hasTimeline ? `${fmtNum(ov.daysAway)} days away` : needsTimeline}
           onClick={() => setTab('trips')}
         />
         <Stat
           label="Days abroad"
+          icon={CalendarDays}
           value={hasTimeline ? fmtNum(ov.daysAbroad) : '—'}
           hint={
             !hasTimeline
@@ -124,6 +129,7 @@ export function Overview({ d }: { d: Derived }) {
         {hasFlighty || !hasTimeline ? (
           <Stat
             label="Flights"
+            icon={Plane}
             value={hasFlighty ? fStats.count : '—'}
             hint={hasFlighty ? fmtKm(fStats.km) : 'Needs Flighty data'}
             onClick={() => setTab('flights')}
@@ -131,6 +137,7 @@ export function Overview({ d }: { d: Derived }) {
         ) : (
           <Stat
             label="Flights"
+            icon={Plane}
             value={googleFlights.length}
             hint={`${fmtKm(googleFlights.reduce((a, u) => a + u.km, 0))} · seen by Google`}
             onClick={() => setTab('flights')}
@@ -138,7 +145,8 @@ export function Overview({ d }: { d: Derived }) {
         )}
         <Stat
           label="Ground travel"
-          value={hasTimeline ? fmtKm(mStats.groundKm) : '—'}
+          icon={Car}
+          value={hasTimeline ? fmtKmShort(mStats.groundKm) : '—'}
           hint={hasTimeline ? 'car, train, walking…' : needsTimeline}
           onClick={() => setTab('movement')}
         />

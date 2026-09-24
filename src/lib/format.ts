@@ -9,6 +9,11 @@ export function fmtKm(km: number): string {
   return `${nf.format(Math.round(km))} km`
 }
 
+/** Like fmtKm but compact from 10,000 km, for big headline numbers in narrow tiles. */
+export function fmtKmShort(km: number): string {
+  return km >= 10000 ? `${nf1.format(km / 1000)}k km` : fmtKm(km)
+}
+
 export function fmtDuration(min: number | null | undefined): string {
   if (min == null) return '—'
   const m = Math.round(Math.abs(min))

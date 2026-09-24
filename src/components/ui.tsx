@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
 
 export function Card({
   title,
@@ -34,11 +35,14 @@ export function Stat({
   label,
   value,
   hint,
+  icon: Icon,
   onClick,
 }: {
   label: string
   value: ReactNode
   hint?: ReactNode
+  /** Optional icon shown in a chip before the label. */
+  icon?: LucideIcon
   onClick?: () => void
 }) {
   const Tag = onClick ? 'button' : 'div'
@@ -46,16 +50,24 @@ export function Stat({
     <Tag
       onClick={onClick}
       className={clsx(
-        'rounded-2xl border border-line bg-surface p-4 text-left',
+        '@container rounded-2xl border border-line bg-surface p-4 text-left',
         onClick &&
           'transition hover:border-accent focus-visible:outline-2 focus-visible:outline-accent',
       )}
     >
-      <div className="text-xs font-medium text-ink-3">{label}</div>
-      <div className="tabular mt-1 truncate text-2xl font-semibold tracking-tight text-ink">
+      <div className="flex items-center gap-2 text-xs font-medium text-ink-3">
+        {Icon && (
+          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent/12 text-accent">
+            <Icon className="h-3.5 w-3.5" aria-hidden />
+          </span>
+        )}
+        {label}
+      </div>
+      {/* Wraps rather than truncates; steps down a size in narrow tiles. */}
+      <div className="tabular mt-1 text-xl font-semibold tracking-tight break-words text-ink @[11rem]:text-2xl">
         {value}
       </div>
-      {hint && <div className="mt-0.5 truncate text-xs text-ink-2">{hint}</div>}
+      {hint && <div className="mt-0.5 text-xs text-pretty text-ink-2">{hint}</div>}
     </Tag>
   )
 }

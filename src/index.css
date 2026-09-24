@@ -25,6 +25,13 @@
   --bad: #c62828;
   --globe-ocean: #dfe8f1;
   --globe-land: #fbfbf9;
+  /* Livery-free aircraft profiles — the same in both themes, like a white airliner */
+  --plane-body: #ffffff;
+  --plane-shade: #dde1e7;
+  --plane-line: #737a84;
+  --plane-window: #3d4450;
+  /* Outline width in px; only the outer half shows. */
+  --plane-stroke: 1.5px;
 }
 
 .dark {
@@ -50,6 +57,8 @@
   --bad: #ef6b6b;
   --globe-ocean: #0d1622;
   --globe-land: #2b2f36;
+  /* Grey on a dark background reads thinner, so the outline is drawn wider. */
+  --plane-stroke: 2.5px;
 }
 
 @theme inline {

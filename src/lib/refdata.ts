@@ -104,3 +104,8 @@ export const CONTINENTS = [
   'Oceania',
   'South America',
 ] as const
+
+/** IATA code for a Flighty airline code (ICAO), for looking up logos. */
+export function airlineIata(code: string, airlines: RefData['airlines']): string | null {
+  return airlines[code]?.iata || (code.length === 2 ? code : null)
+}
