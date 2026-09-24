@@ -5,7 +5,17 @@ import type { Flight } from '../types'
 import { BarList, Card, Empty, Grid, Pill, Stat } from '../components/ui'
 import { ColumnChart } from '../components/charts'
 import { useStore } from '../store/useStore'
-import { fmtDate, fmtDelay, fmtDuration, fmtKm, fmtNum, pct, plural, WEEKDAYS } from '../lib/format'
+import {
+  fmtDate,
+  fmtDelay,
+  fmtDuration,
+  fmtKm,
+  fmtKmShort,
+  fmtNum,
+  pct,
+  plural,
+  WEEKDAYS,
+} from '../lib/format'
 import { median } from '../lib/stats'
 import { airlineIata } from '../lib/refdata'
 import type { FlightEvidence, UnloggedFlight } from '../lib/cross'
@@ -144,7 +154,7 @@ export function Flights({ d }: { d: Derived }) {
         />
         <Stat
           label="Distance"
-          value={fmtKm(s.km)}
+          value={fmtKmShort(s.km)}
           hint={`${fmtNum(s.count ? s.km / s.count : 0)} km avg`}
         />
         <Stat

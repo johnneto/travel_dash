@@ -66,6 +66,11 @@ export function InsightCard({ insight }: { insight: Insight }) {
         {insight.visual?.type === 'aircraft' && (
           <AircraftProfile name={insight.visual.name} className="h-8 w-24 shrink-0" />
         )}
+        {insight.visual?.type === 'flag' && (
+          <span aria-hidden className="shrink-0 text-4xl leading-none">
+            {insight.visual.emoji}
+          </span>
+        )}
         {insight.visual?.type === 'seat' && (
           <SeatIcon seat={insight.visual.seat} className="h-8 w-16" />
         )}

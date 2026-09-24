@@ -16,7 +16,7 @@ function Layer({ paths, fill }: { paths: string[]; fill: string }) {
           d={d}
           fill="var(--plane-line)"
           stroke="var(--plane-line)"
-          strokeWidth={1.5}
+          style={{ strokeWidth: 'var(--plane-stroke)' }}
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"
         />

@@ -2,6 +2,7 @@ import type { DateRange, Selection, TimelineData } from '../types'
 import type { CrossData } from './cross'
 import { airlineIata, type RefData } from './refdata'
 import {
+  countBy,
   median,
   type CityStat,
   type CountryStat,
@@ -35,6 +36,7 @@ export type InsightVisual =
   | { type: 'aircraft'; name: string }
   | { type: 'airline'; iata: string | null; code: string }
   | { type: 'seat'; seat: SeatKind }
+  | { type: 'flag'; emoji: string }
 
 export interface Insight {
   id: string
@@ -152,6 +154,35 @@ export function buildInsights(x: InsightInput): Insight[] {
         visual: { type: 'airline', iata: airlineIata(code, ref.airlines), code },
       })
     }
+    // Countries by arrivals and by departures. Home would top both lists for almost everyone,
+    // so it's left out unless it's the only country.
+    const countryTile = (id: string, label: string, verb: string, counts: [string, number][]) => {
+      const pick = counts.find(([cc]) => cc !== x.homeCc) ?? counts[0]
+      const c = pick && ref.countries[pick[0]]
+      if (!pick || !c) return
+      const home = x.homeCc && pick[0] !== x.homeCc ? ref.countries[x.homeCc]?.name : null
+      out.push({
+        id,
+        kind: 'globe',
+        label,
+        value: c.name,
+        text: `${plural(pick[1], 'flight')} ${verb} ${c.name} ${periodLabel}${home ? ` — the most outside ${home}` : ''}.`,
+        select: { type: 'country', cc: pick[0] },
+        visual: { type: 'flag', emoji: c.flag },
+      })
+    }
+    countryTile(
+      'top-country-to',
+      'Most flown to',
+      'landed in',
+      countBy(fd.flights, (q) => q.toCc),
+    )
+    countryTile(
+      'top-country-from',
+      'Most flown from',
+      'took off from',
+      countBy(fd.flights, (q) => q.fromCc),
+    )
     if (fs.routes[0] && fs.routes[0][1] > 1) {
       const [a, b] = fs.routes[0][0].split('–')
       out.push({
@@ -414,6 +445,8 @@ export function buildInsights(x: InsightInput): Insight[] {
     'longest-flight',
     'top-aircraft',
     'top-airline',
+    'top-country-to',
+    'top-country-from',
     'farthest',
     'airport-habit',
     'multi-country',
